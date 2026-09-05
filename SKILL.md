@@ -1,9 +1,9 @@
 ---
 name: ai-native-software-engineering
-description: A gated, spec-driven software engineering workflow for AI coding agents. Use when developing features, fixing bugs, refactoring, reviewing AI-generated code, planning architecture, defining requirements, testing, benchmarking, or preparing a release. Enforces requirements, design, task decomposition, TDD where appropriate, adversarial review, evidence-based verification, traceability, and explicit acceptance.
+description: A gated, spec-driven software engineering workflow for AI coding agents. Use when developing features, fixing bugs, refactoring, reviewing AI-generated code, planning architecture, defining requirements, testing, benchmarking, or preparing a release. Enforces requirements, design, task decomposition, TDD where appropriate, adversarial review, evidence-based verification, traceability, explicit acceptance, and evidence-driven evaluation of external projects and community feedback.
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.3.1"
   methodology: "spec-driven-ai-engineering"
 ---
 
@@ -33,6 +33,8 @@ Use the smallest workflow that preserves correctness. For trivial changes, use M
 10. Quantitative claims require reproducible measurements.
 11. Never expose or commit credentials, tokens, private keys, or other secrets.
 12. Prefer the smallest architecture that satisfies verified requirements.
+13. When learning from external projects, distinguish repository facts from community opinions and from the agent's inference.
+14. Do not select a reference project by stars alone; evaluate activity, maturity, maintenance, issue/PR signals, release history, documentation, and real user feedback.
 
 ## Workflow Gates
 
@@ -152,6 +154,43 @@ When performance, quality, accuracy, latency, memory, throughput, or UX is mater
 - comparison
 - uncertainty/limitations
 
+### External Project & Community Research
+
+When architecture, tooling, workflow, or Skill design would benefit from prior art, perform evidence-driven external research before adopting a pattern.
+
+Use two complementary evidence channels:
+
+**GitHub — repository and engineering evidence**
+- project activity: recent commits, releases, contributor activity
+- maturity: release history, documentation, compatibility, tests, CI, adoption signals
+- maintenance: open/closed issue velocity, stale issues, PR activity, maintainer response
+- issue feedback: recurring bugs, workflow failures, feature requests, migration problems
+- architecture and implementation: current source, docs, tests, examples
+- ecosystem: integrations, forks, extensions, dependent projects where observable
+
+**Reddit / community forums — experiential evidence**
+- recurring user reports and operational pain points
+- real-world workflow effectiveness
+- setup friction, reliability, model/tool compatibility
+- disagreements and minority reports that may reveal hidden failure modes
+- distinguish anecdotes from broad consensus
+
+Do not equate popularity with maturity. A project with many stars but weak maintenance may be a worse engineering reference than a smaller, actively maintained project.
+
+Record findings with explicit evidence classes:
+- `FACT` — directly observed in the repository or source
+- `METRIC` — measured/countable signal with observation date
+- `COMMUNITY` — user report or discussion signal
+- `INFERENCE` — conclusion derived from evidence
+- `UNKNOWN` — evidence insufficient
+
+For every adopted external pattern, record:
+`source → observed evidence → lesson → applicability → adopted/ rejected decision`
+
+Prefer multiple independent signals. Re-check volatile metrics such as stars, forks, issues, PRs, releases, and recent activity at the time of research. Do not present historical counters as current facts.
+
+See `docs/RESEARCH.md` and `docs/RESEARCH-PROTOCOL.md` for the project's research method and examples.
+
 ### G9 — Acceptance
 
 Execute acceptance criteria against the implemented system. Record:
@@ -253,6 +292,7 @@ Use explicit roles when useful:
 - Test Engineer
 - Benchmark Engineer
 - Release Engineer
+- Research Analyst
 
 One agent may perform several roles, but implementation and review should remain conceptually separate.
 
@@ -276,6 +316,9 @@ The agent must:
 6. Surface contradictions instead of selecting silently.
 7. Maintain unresolved `UNKNOWN` items until resolved or explicitly accepted as risk.
 8. Treat generated code, compiled code, and tested code as three different evidence levels.
+9. When citing external projects, record the observation date for volatile repository metrics.
+10. Treat Reddit and forum posts as qualitative evidence, not authoritative technical documentation.
+11. Do not generalize from a single community anecdote; look for recurrence, independent reports, or repository corroboration.
 
 ## Minimal Mode
 
