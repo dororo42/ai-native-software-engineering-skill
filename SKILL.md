@@ -1,163 +1,312 @@
+---
+name: ai-native-software-engineering
+description: A gated, spec-driven software engineering workflow for AI coding agents. Use when developing features, fixing bugs, refactoring, reviewing AI-generated code, planning architecture, defining requirements, testing, benchmarking, or preparing a release. Enforces requirements, design, task decomposition, TDD where appropriate, adversarial review, evidence-based verification, traceability, and explicit acceptance.
+license: MIT
+metadata:
+  version: "0.3.0"
+  methodology: "spec-driven-ai-engineering"
+---
+
 # AI-Native Software Engineering Skill
 
 ## Purpose
 
-A gated, spec-driven workflow for AI coding agents. It treats requirements, architecture, design, implementation, review, testing, benchmarking, and acceptance as explicit engineering artifacts rather than relying on conversational intent.
+Run AI-assisted software development as an evidence-driven engineering control loop rather than a code-generation conversation.
 
-## Core Rules
+The default lifecycle is:
 
-1. Clarify the problem before proposing implementation.
-2. Convert requirements into observable and testable acceptance criteria.
-3. Establish architecture and record consequential decisions as ADRs.
-4. Decompose implementation into small, verifiable tasks.
-5. Do not silently change requirements; surface conflicts and obtain confirmation.
-6. Derive tests from requirements and risk, not only from implementation details.
-7. Review AI-generated code adversarially for correctness, security, maintainability, performance, and hidden assumptions.
-8. Do not claim completion without evidence: tests, benchmarks, inspection results, or acceptance checks.
-9. Preserve traceability: Requirement -> Design -> Task -> Code -> Test -> Acceptance.
-10. Prefer the smallest architecture that satisfies the requirements; avoid speculative complexity.
+`Explore → Specify → Design → Tasks → Implement → Review → Test → Verify → Benchmark → Accept → Archive/Release`
 
-## Standard Workflow
+Use the smallest workflow that preserves correctness. For trivial changes, use Minimal Mode.
 
-### G0 — Problem Definition
-- State the problem, users, context, constraints, and desired outcome.
-- Identify unknowns and assumptions.
-- Define what is explicitly out of scope.
+## Non-Negotiable Rules
 
-### G1 — Requirements
-- Produce functional and non-functional requirements.
-- Assign each requirement a stable identifier.
-- Define acceptance criteria for each externally meaningful behavior.
-- Resolve ambiguity before implementation.
+1. Clarify the problem before implementation.
+2. Convert important behavior into observable acceptance criteria.
+3. Record consequential architectural decisions as ADRs.
+4. Decompose non-trivial work into independently verifiable tasks.
+5. Never silently change requirements, scope, interfaces, or constraints.
+6. Treat `UNKNOWN` as a valid state; never invent repository facts, APIs, outputs, metrics, or test results.
+7. Prefer TDD for behavior-changing code when practical: RED → GREEN → REFACTOR.
+8. Review AI-generated changes adversarially; implementation is not proof of correctness.
+9. Verify the implementation against the approved artifacts before acceptance.
+10. Quantitative claims require reproducible measurements.
+11. Never expose or commit credentials, tokens, private keys, or other secrets.
+12. Prefer the smallest architecture that satisfies verified requirements.
+
+## Workflow Gates
+
+### G0 — Explore / Problem Definition
+
+Identify:
+- user and business problem
+- desired outcome
+- context and existing system
+- constraints
+- in-scope and out-of-scope behavior
+- assumptions and unknowns
+
+If the problem is unclear, investigate first. Do not manufacture certainty.
+
+### G1 — Specify
+
+Produce stable requirement IDs and testable acceptance criteria.
+
+For each important requirement define:
+- actor/context
+- observable behavior
+- success criteria
+- failure/edge scenarios
+- priority
+
+Keep product behavior in the specification. Put implementation mechanisms in design artifacts unless the mechanism itself is part of the contract.
 
 ### G2 — Architecture
-- Identify components, boundaries, interfaces, data flow, dependencies, and operational concerns.
-- Evaluate major alternatives.
-- Record consequential choices as ADRs.
+
+Define:
+- components and boundaries
+- interfaces
+- data flow
+- dependencies
+- security/trust boundaries
+- reliability and operational concerns
+- performance constraints
+- alternatives
+
+Create an ADR for consequential choices.
 
 ### G3 — Detailed Design
-- Define APIs, schemas, state transitions, algorithms, error handling, concurrency, security boundaries, and observability as applicable.
-- Explicitly identify edge cases.
 
-### G4 — Task Decomposition
-- Convert design into independently verifiable tasks.
-- Each task should have a clear input, output, affected area, and validation method.
-- Order tasks according to dependency and risk.
+Define APIs, schemas, state transitions, algorithms, error handling, concurrency, security, observability, migration/compatibility behavior, and edge cases as applicable.
+
+The design must be sufficiently concrete that implementation does not require guessing.
+
+### G4 — Tasks
+
+Create dependency-ordered tasks. Each task should specify:
+- requirement IDs
+- input/preconditions
+- expected output
+- affected area
+- validation method
+- dependencies
+
+Prefer small tasks that can be reviewed and reverted independently.
 
 ### G5 — Implementation
-- Implement one coherent task at a time.
-- Keep changes aligned with the approved specification and architecture.
-- Add or update tests with behavior changes.
-- Avoid unrelated refactoring.
 
-### G6 — Adversarial Code Review
-Review from at least these perspectives when relevant:
-- Correctness: Does it actually satisfy the requirement?
-- Boundary conditions: What happens at empty, invalid, extreme, concurrent, or partial states?
-- Security: Can untrusted input cross a trust boundary incorrectly?
-- Reliability: What happens after failure, restart, timeout, or dependency outage?
-- Performance: Are there unnecessary hot paths, allocations, I/O, or algorithmic regressions?
-- Maintainability: Is the abstraction justified and understandable?
-- Compatibility: Does it preserve existing behavior and interfaces?
-- Test quality: Could the implementation pass weak tests while still being wrong?
+Implement only approved tasks.
+
+For behavior changes, prefer:
+
+`RED: write a failing test → GREEN: minimal implementation → REFACTOR: improve without changing behavior`
+
+Keep changes scoped. Update tests and documentation when behavior changes. Do not perform unrelated cleanup unless explicitly approved.
+
+### G6 — Adversarial Review
+
+Perform two distinct passes for non-trivial changes:
+
+**Pass A — Specification compliance**
+- Does the implementation satisfy every requirement and acceptance criterion?
+- Are scope and compatibility preserved?
+- Are edge/failure scenarios covered?
+
+**Pass B — Code quality / risk**
+- correctness and boundary conditions
+- security and trust boundaries
+- reliability and recovery
+- performance and resource use
+- maintainability and abstraction quality
+- compatibility and migrations
+- test quality and false-positive risk
+
+Findings must have severity, evidence, disposition, and owner/follow-up where applicable.
 
 ### G7 — Testing
-- Run unit, integration, system, regression, static, and security checks as appropriate.
-- Test both happy paths and failure paths.
-- Map important tests back to requirements.
 
-### G8 — Benchmark
-Use quantitative evidence when performance, quality, accuracy, latency, memory, resource usage, or UX is a material requirement.
-- Define baseline.
-- Define measurement methodology.
-- Record environment and sample size.
-- Compare before/after results.
-- State uncertainty and limitations.
+Run the applicable verification layers:
+- unit
+- integration
+- system/end-to-end
+- regression
+- static/type/lint
+- security
+
+Include happy paths and failure paths. Map important tests to requirements.
+
+### G8 — Verify / Benchmark
+
+First verify artifact-to-implementation consistency:
+- requirements ↔ code
+- design/ADR ↔ implementation
+- tasks ↔ completed work
+- tests ↔ acceptance criteria
+
+When performance, quality, accuracy, latency, memory, throughput, or UX is material, benchmark using:
+- baseline
+- methodology
+- environment
+- sample size
+- measurements
+- comparison
+- uncertainty/limitations
 
 ### G9 — Acceptance
-- Execute the acceptance criteria against the implemented system.
-- Confirm requirement coverage.
-- Record known deviations, limitations, and unresolved risks.
 
-### G10 — Release
-- Verify documentation and operational instructions.
-- Confirm reproducibility.
-- Produce release notes when appropriate.
-- Ensure no secrets, debug artifacts, or unintended files are included.
+Execute acceptance criteria against the implemented system. Record:
+- requirement coverage
+- evidence
+- deviations
+- known limitations
+- residual risks
+- acceptance decision
 
-## Agent Communication Protocol
+### G10 — Archive / Release
 
-At each phase, the agent should explicitly state:
+For completed changes, preserve the context needed to understand why and how the change happened. A useful change record contains:
 
-- Current phase and gate.
-- What is known.
-- What is assumed.
-- What is still unknown.
-- Proposed next action.
-- Evidence required to pass the gate.
+`proposal → delta requirements/spec → design → tasks → implementation evidence → verification → acceptance`
 
-When information is missing, ask focused questions rather than inventing requirements.
+Then merge the accepted specification into the current source of truth and archive the change record, or prepare the release when the project uses a release-oriented workflow.
 
-## Role Switching
+Before release verify reproducibility, documentation, clean configuration, and absence of secrets/debug artifacts.
 
-An AI coding agent may switch roles deliberately:
+## Change-Oriented Workflow
 
-- Product Analyst — requirements and acceptance.
-- Software Architect — boundaries and architecture.
-- Designer — detailed technical design.
-- Implementer — code changes.
-- Reviewer — adversarial review.
-- Test Engineer — verification strategy and execution.
-- Benchmark Engineer — quantitative evaluation.
-- Release Engineer — reproducibility and release readiness.
+For medium/large feature work, prefer a change workspace rather than editing the permanent specification directly:
 
-The same agent may perform multiple roles, but should not implicitly treat implementation as proof of correctness.
+```text
+specs/                         # current behavioral source of truth
+changes/<change-name>/
+├── proposal.md               # why / what / impact
+├── specs/<capability>/
+│   └── spec.md               # delta requirements + scenarios
+├── design.md                 # how
+└── tasks.md                  # implementation checklist
+```
 
-## Traceability Matrix
+After acceptance:
 
-Maintain a lightweight matrix for non-trivial work:
+```text
+changes/<change-name>/ → changes/archive/YYYY-MM-DD-<change-name>/
+```
 
-| Requirement | Design | Task | Code | Test | Acceptance |
-|---|---|---|---|---|---|
-| REQ-001 | DES-001 | TASK-001 | path/to/code | TEST-001 | AC-001 |
+Merge accepted deltas into the current `specs/` source of truth before or during archival. Conflicting or missing requirement sections must stop the archive rather than being silently overwritten.
 
-Every important requirement should have a validation path.
+## Evidence Model
 
-## ADR Guidance
+Use exact evidence labels:
 
-Create an ADR when a decision has meaningful consequences for architecture, compatibility, security, performance, data, operations, or long-term maintenance.
+- **Verified** — directly observed by an executed check or measurement.
+- **Supported** — strongly supported by inspection but not executed.
+- **Assumed** — working assumption.
+- **Unknown** — insufficient information.
+- **Blocked** — cannot proceed without a missing dependency/decision.
 
-Minimum ADR structure:
-- Context
-- Decision
-- Alternatives considered
-- Consequences
-- Status
+Never upgrade evidence merely through wording.
+
+## Agent Status Protocol
+
+At every gate report:
+
+```text
+STATUS: Gx — READY|IN_PROGRESS|BLOCKED|PASSED|FAILED
+KNOWN:
+ASSUMED:
+UNKNOWN:
+CHANGES:
+VALIDATION:
+NEXT:
+```
+
+## Portable Commands
+
+When the host agent supports command aliases:
+
+- `/explore` — investigate an unclear problem
+- `/spec` — create/update requirements and acceptance criteria
+- `/clarify` — resolve ambiguity and conflicts
+- `/plan` — architecture, ADRs, and detailed design
+- `/tasks` — task decomposition
+- `/implement` — execute approved tasks
+- `/review` — two-pass adversarial review
+- `/test` — execute mapped verification
+- `/verify` — compare implementation with artifacts
+- `/benchmark` — quantitative evaluation
+- `/accept` — execute acceptance
+- `/archive` — merge accepted specs and preserve change history
+- `/release` — release readiness
+- `/status` — report state and evidence
+
+Commands are intents, not bypasses. `/implement` cannot skip specification; `/accept` cannot substitute for verification.
+
+## Role Discipline
+
+Use explicit roles when useful:
+
+- Product Analyst
+- Architect
+- Designer
+- Implementer
+- Reviewer
+- Test Engineer
+- Benchmark Engineer
+- Release Engineer
+
+One agent may perform several roles, but implementation and review should remain conceptually separate.
+
+## Traceability
+
+For non-trivial work maintain:
+
+`REQ → AC → DESIGN/ADR → TASK → CODE → TEST → VERIFY → ACCEPT`
+
+Every important requirement needs a validation path. If a requirement is intentionally non-testable, document why and define another acceptance mechanism.
+
+## Anti-Hallucination / AI Failure Controls
+
+The agent must:
+
+1. Inspect the repository before describing its structure.
+2. Inspect dependency versions before relying on version-sensitive APIs.
+3. Never invent command output or claim a test passed without executing it.
+4. Never claim a benchmark result without measurement.
+5. Never claim external facts without an appropriate source.
+6. Surface contradictions instead of selecting silently.
+7. Maintain unresolved `UNKNOWN` items until resolved or explicitly accepted as risk.
+8. Treat generated code, compiled code, and tested code as three different evidence levels.
 
 ## Minimal Mode
 
-For a small, low-risk change, compress the workflow to:
+For a low-risk change:
 
-1. Restate requirement and acceptance criteria.
-2. Inspect relevant code and dependencies.
-3. State implementation approach and risks.
-4. Implement.
-5. Run targeted tests.
-6. Perform adversarial review.
-7. Report evidence and remaining limitations.
+```text
+Requirement
+Acceptance criteria
+Inspection
+Approach + risks
+Test first when practical
+Implementation
+Targeted tests
+Two-pass review
+Verification
+Evidence + limitations
+```
 
-Do not force heavyweight architecture documents onto trivial changes.
+Do not force a large artifact set onto trivial work, but do not remove verification.
 
 ## Definition of Done
 
-A task is done only when:
+A change is done only when:
 
-- Requirements are explicit.
-- Acceptance criteria are testable.
-- Architecture decisions are understood.
-- Implementation is complete.
-- Relevant tests pass.
-- AI-generated changes have been reviewed adversarially.
-- Performance/quality claims have evidence where applicable.
-- Known limitations are disclosed.
-- Documentation is sufficient for another engineer or agent to reproduce and maintain the result.
+- requirements are explicit
+- acceptance criteria are testable
+- consequential design decisions are understood
+- implementation is complete
+- relevant tests/checks have executed
+- adversarial review is complete
+- artifact-to-code verification is complete
+- quantitative claims have evidence where applicable
+- deviations and limitations are disclosed
+- documentation is sufficient for another engineer/agent to reproduce and maintain the change
